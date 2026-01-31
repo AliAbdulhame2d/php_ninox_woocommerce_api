@@ -1,9 +1,11 @@
 
 
 <?php
-// Author Ali Abdulhameed 31.01.2026
-// Inegration between Ninox and Mysql database
-// Dummy code, only for training
+
+/**.@author Ali Abdulhameed 31.01.2026
+ * Inegration between Ninox and Mysql database
+ * Dummy code, only for training
+ **/
 
 error_reporting(E_ERROR | E_PARSE);
 header('Access-Control-Allow-Origin: *');
@@ -14,12 +16,13 @@ header("Access-Control-Max-Age: 3600");
 setlocale(LC_ALL, 'de_DE');
 set_time_limit(0);
 
-require "./config/bootstrap.php";
+
 use Automattic\WooCommerce\HttpClient\HttpClientException;
 
 class testClass {
 
  public $client;
+ public $woocommerce;
  public $sqlConn;
  public $imgUrl=__DIR__ ."/../../imgs";
  public $open=true;
@@ -28,14 +31,22 @@ class testClass {
 
 
  public function __construct() {
-	
+
+    $autoloader = __DIR__ . '/../vendor/autoload.php';
+	if ( is_readable( $autoloader ) ) {
+	require_once $autoloader;
+	} 
+
+    //$woocommerc is Object of Client Class
+    $this->woocommerce=$woocommerce;
+
 	//Ninox connection setting
 	$api_key = "";
 	$team_id = "";
 	$db_id = "";
-	$Url= "";
+	$url= "";
 
-   $this->client=new Ninox($api_key, $team_id, $db_id, $Url);
+   $this->client=new Ninox($api_key, $team_id, $db_id, $url);
  	if(is_null($this->client)){
 		echo "Faild to connect to Ninox dataBase\n\n";
 		exit();
@@ -59,8 +70,8 @@ class testClass {
 
 	}
 
-
-	function getProduct($productId,&$product){
+	//get product from Ninox database
+	function getNxProduct($productId,&$product){
 		//get data from x table
 		$product=$this->client->getData("/tables/x/records/".$productId);
 		$fields=$product['fields'];
@@ -74,6 +85,20 @@ class testClass {
 
 		return $nxproduct;
 	}
+
+	//insert product in Mysql database
+	function addWooProduct($product, $productId){
+
+	$query_result=$this->woocommerce->post('products', $product);
+
+	if(!is_null($query_result)){
+					
+					echo "\n";
+					echo "the product with ID: ".$productId." added. ";
+	}
+
+
+
 }//END OF CLASS
 
 
@@ -82,11 +107,14 @@ class testClass {
 //Creat object from Class
 $obj=new testClass();
 
-//take und print data
-$id=10;
-$nxPrdct=$obj>getProduct($id);
-$result="The Product "+ $id +" with Katigorie:"+$product['fields']['Artikelkategorie']+" ist: " + $nxPrdct;
+//take the product from Ninox database und print data
+$productId=10;
+$ninox_prdct=$obj>getNxProduct($productId);
+$result="The Product ".$productId." with Katigorie:".$product['fields']['Artikelkategorie']." ist: ".$nxPrdct;
 print_r($result);
+
+//insert Ninox product in Mysql database
+$obj>addWooProduct($ninox_prdct, $productId);
 
 
 		
