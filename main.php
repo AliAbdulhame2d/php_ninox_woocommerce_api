@@ -85,7 +85,8 @@ $obj=new testClass();
 //take und print data
 $id=10;
 $nxPrdct=$obj>getProduct($id);
-print_r("The Product "+ $id +" with Katigorie:"+$product['fields']['Artikelkategorie']+" ist: " + $nxPrdct);
+$result="The Product "+ $id +" with Katigorie:"+$product['fields']['Artikelkategorie']+" ist: " + $nxPrdct;
+print_r($result);
 
 
 		
