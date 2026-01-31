@@ -19,7 +19,6 @@ use Automattic\WooCommerce\HttpClient\HttpClientException;
 
 class testClass {
 
- //public Curl $nxCurl;
  public $client;
  public $sqlConn;
  public $imgUrl=__DIR__ ."/../../imgs";
