@@ -83,9 +83,9 @@ class testClass {
 		$fields=$product['fields'];
 		
         $nxproduct = [
-				'name' => $fields['Artikelname'],
-				'type' => $fields['Artikeltyp'],
-				'regular_price' => $fields['Preis'],
+				'name' => $fields['Artikelname'] ?? '',
+				'type' => $fields['Artikeltyp'] ?? '',
+				'regular_price' => $fields['Preis'] ?? 0,
 			];
 
 
@@ -116,7 +116,13 @@ $obj=new testClass($config);
 //take the product from Ninox database und print data
 $productId=10;
 $ninox_prdct=$obj->getNxProduct($productId, $product);
-$result="The Product ".$productId." with Katigorie:".$product['fields']['Artikelkategorie']." ist: ".$ninox_prdct;
+
+$result = "The Product ".$productId.
+          " with Kategorie: ".
+          $product['fields']['Artikelkategorie'].
+          " Name: ".
+          $ninox_prdct['name'];
+
 print_r($result);
 
 //insert Ninox product in Mysql database
