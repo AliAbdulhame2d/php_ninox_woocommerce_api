@@ -83,9 +83,9 @@ class testClass {
 		$fields=$product['fields'];
 		
         $nxproduct = [
-				'name' => $fields['Artikelname'] ?? '',
-				'type' => $fields['Artikeltyp'] ?? '',
-				'regular_price' => $fields['Preis'] ?? 0,
+				'name' => $fields['Artikelname'],
+				'type' => $fields['Artikeltyp'],
+				'regular_price' => $fields['Preis'],
 			];
 
 

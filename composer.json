@@ -1,0 +1,9 @@
+{
+    "name": "ali/ninox-woocommerce-integration",
+    "description": "Training project demonstrating API integration between Ninox and WooCommerce",
+    "type": "project",
+
+    "require": {
+        "automattic/woocommerce": "^3.0"
+    }
+}
