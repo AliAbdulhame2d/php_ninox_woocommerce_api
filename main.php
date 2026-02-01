@@ -17,69 +17,75 @@ setlocale(LC_ALL, 'de_DE');
 set_time_limit(0);
 
 
+use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
+
+require __DIR__ . '/../vendor/autoload.php';
+$config = require __DIR__ . '/config.php';
 
 class testClass {
 
- public $client;
- public $woocommerce;
- public $sqlConn;
- public $imgUrl=__DIR__ ."/../../imgs";
- public $open=true;
- public $collector=array();
+    public $woocommerce;
+    public $client;
+    public $sqlConn;
+    public $imgUrl;
+    public $open = true;
+    public $collector = [];
+
+    public function __construct($config)
+    {
+        $this->imgUrl = __DIR__ . "/imgs";
+
+        // WooCommerce
+        $this->woocommerce = new Client(
+            $config['woo_url'],
+            $config['woo_key'],
+            $config['woo_secret'],
+            [
+                'version' => 'wc/v3'
+            ]
+        );
+
+        // Ninox
+        $this->client = new Ninox(
+            $config['ninox_key'],
+            $config['ninox_team'],
+            $config['ninox_db'],
+            $config['ninox_url']
+        );
+
+        // MySQL
+        $this->sqlConn = new mysqli(
+            $config['db_host'],
+            $config['db_user'],
+            $config['db_pass'],
+            $config['db_name']
+        );
+
+        if ($this->sqlConn->connect_error) {
+            throw new \Exception("Mysql connection failed");
+        }
+
+        $this->sqlConn->set_charset('utf8');
+    }
 
 
-
- public function __construct() {
-
-    $autoloader = __DIR__ . '/../vendor/autoload.php';
-	if ( is_readable( $autoloader ) ) {
-	require_once $autoloader;
-	} 
-
-    //$woocommerc is Object of Client Class
-    $this->woocommerce=$woocommerce;
-
-	//Ninox connection setting
-	$api_key = "";
-	$team_id = "";
-	$db_id = "";
-	$url= "";
-
-   $this->client=new Ninox($api_key, $team_id, $db_id, $url);
- 	if(is_null($this->client)){
-		echo "Faild to connect to Ninox dataBase\n\n";
-		exit();
-		}else
-		echo "Success connect to Ninox dataBase\n\n";
-
-    //Mysql connection setting
-    $servername = "localhost";
-	$username = "";
-	$password = "";
-	$dbname = "";
-
-	// Create mysqli connection
-	$this->sqlConn = new mysqli($servername, $username, $password, $dbname);
-	mysqli_set_charset('utf8',$this->sqlConn);
-	// Check connection
-	if ($this->sqlConn->connect_error) {
-	  die("Connection failed to Mysql DB: " . $this->sqlConn->connect_error);
-	}
-
-
-	}
-
+	
 	//get product from Ninox database
 	function getNxProduct($productId,&$product){
 		//get data from x table
 		$product=$this->client->getData("/tables/x/records/".$productId);
-		$fields=$product['fields'];
 
+		if (!isset($product['fields'])) {
+			throw new Exception("Invalid Ninox response");
+		}
+
+		$fields=$product['fields'];
+		
         $nxproduct = [
 				'name' => $fields['Artikelname'],
 				'type' => $fields['Artikeltyp'],
-				'regular_price' =>$fields['Preis'] ?? 0,
+				'regular_price' => $fields['Preis'],
 			];
 
 
@@ -97,7 +103,7 @@ class testClass {
 					echo "the product with ID: ".$productId." added. ";
 	}
 
-
+}
 
 }//END OF CLASS
 
@@ -105,16 +111,16 @@ class testClass {
 
 
 //Creat object from Class
-$obj=new testClass();
+$obj=new testClass($config);
 
 //take the product from Ninox database und print data
 $productId=10;
-$ninox_prdct=$obj>getNxProduct($productId);
-$result="The Product ".$productId." with Katigorie:".$product['fields']['Artikelkategorie']." ist: ".$nxPrdct;
+$ninox_prdct=$obj->getNxProduct($productId, $product);
+$result="The Product ".$productId." with Katigorie:".$product['fields']['Artikelkategorie']." ist: ".$ninox_prdct;
 print_r($result);
 
 //insert Ninox product in Mysql database
-$obj>addWooProduct($ninox_prdct, $productId);
+$obj->addWooProduct($ninox_prdct, $productId);
 
 
 		
