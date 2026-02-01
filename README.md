@@ -19,7 +19,7 @@ Das Projekt wurde zu Trainings- und Lernzwecken entwickelt und dient als Demonst
 
 ---
 
-## 🧰 Verwendete Technologien
+##  Verwendete Technologien
 
 - PHP
 - Composer
